@@ -1,7 +1,11 @@
 import React,{useState} from 'react'
-import {MdDeleteForever} from "react-icons/md";
-import {AiOutlineStar} from "react-icons/ai"
-import {GrEdit} from "react-icons/gr"
+import Tabs from './components/Tabs';
+import SearchInput from './components/SearchInput';
+import EditNote from './components/notes/EditNote';
+import SelectedNote from './components/notes/SelectedNote';
+import DeleteNotes from './components/notes/DeleteNotes';
+import StarNotes from './components/notes/StarNotes';
+import AllNotes from './components/notes/AllNotes';
 
 const App = () => {
   const dummyData = [
@@ -31,7 +35,6 @@ const App = () => {
   const [isStar,setIsStar]=useState(null)
   const [isDelete,setIsDelete]=useState(null)
   const [isEdit,setIsEdit]=useState(null)
- 
  
   const [title,setTitle] =useState("")
   const [description,setDescription]=useState("")
@@ -67,6 +70,7 @@ const App = () => {
     setIsDelete(true)
     setSelectedData([])
   }
+
   const permanentdeletedNote = (item) => {
     const updateAll = notesData.filter((each)=> each.id !== item.id)
     setNotesData(updateAll)
@@ -74,6 +78,7 @@ const App = () => {
     setStarData(updateStar)
     const updateDelete = deleteData.filter((each)=>each.id !== item.id)
     setDeleteData(updateDelete)
+    setSelectedData([])
   }
 
   const editNote = (item) => {
@@ -109,110 +114,34 @@ const App = () => {
   setNotesData(filteredNotes)
 };
 
-
   return (
     <>
     {!isEdit ? (
       <div className='container-fluid'>
         <div className='row'>
           <div className='col-2 mt-5'>
-            <h4>Notes</h4>
-            <button onClick={allHandler}>All ({notesData.length})</button>
-            <button onClick={starHandler}>Starred ({starData.length})</button>
-            <button onClick={deleteHandler}>Deleted ({deleteData.length})</button>
-          </div>
-          
-            <div className='col-5'>
-            <div className="search-container mt-2">
-               <input type="text" placeholder="Search by title" value={searchQuery} onChange={handleSearch} />
-            </div>
-           {(isAll && !isStar && !isDelete) && 
-           <div className='mt-3'>
-              <h4>All Notes</h4>
-              {notesData.map((item,index)=>{
-                return (
-                  <div key={item.id} className='notes-container' onClick={()=>selectedNote(item)}>
-                     <div className='notes-title'>
-                      <h5>{item.title}</h5>
-                      <div>
-                      <AiOutlineStar size="1.4em" onClick={()=>starredNote(item)}/>
-                      <MdDeleteForever className='delete-icon' size="1.4em" onClick={()=>deletedNote(item)}/> 
-                      </div>
-                     </div>
-                     <p>{item.description}</p>
-                  </div>
-                )
-              })}
-            </div>}
-            {(!isAll && isStar && !isDelete) && <div className='mt-3'>
-              <h4>Starred Notes</h4>
-              {(starData.length>0)?(starData.map((item,index)=>{
-                return (
-                  <div key={item.id} className='notes-container' onClick={()=>selectedNote(item)}>
-                     <div className='notes-title'>
-                      <h5>{item.title}</h5>
-                      <div>
-                      <AiOutlineStar size="1.4em" onClick={()=>filterStarredNote(item)}/>
-                      <MdDeleteForever className='delete-icon' size="1.4em" onClick={()=>deletedNote(item)}/> 
-                      </div>
-                     </div>
-                     <p>{item.description}</p>
-                  </div>
-                )
-              })):(<h1 style={{textAlign:"center",marginTop:"100px"}}>Empty</h1>)}
-            </div>}
-            {(!isAll && !isStar && isDelete) && <div className='mt-3'>
-              <h4>Deleted Notes</h4>
-              {(deleteData.length>0)?(deleteData.map((item,index)=>{
-                return (
-                  <div key={item.id} className='notes-container' onClick={()=>selectedNote(item)}>
-                     <div className='notes-title'>
-                      <h5>{item.title}</h5>
-                      <div>
-                      <AiOutlineStar size="1.4em" onClick={()=>starredNote(item)}/>
-                      <MdDeleteForever className='delete-icon' size="1.4em" onClick={()=>permanentdeletedNote(item)}/> 
-                      </div>
-                     </div>
-                     <p>{item.description}</p>
-                  </div>
-                )
-              })):(<h1 style={{textAlign:"center",marginTop:"100px"}}>Empty</h1>)}
-            </div>}
+            <Tabs allHandler={allHandler} starHandler={starHandler} deleteHandler={deleteHandler}notesData={notesData}starData={starData}deleteData={deleteData}/>
+         </div>
+          <div className='col-5'>
+            <SearchInput searchQuery={searchQuery} handleSearch={handleSearch}/>
+
+            <AllNotes isAll={isAll} isDelete={isDelete} isStar={isStar}
+            notesData={notesData} deleteData={deleteData} selectedNote={selectedNote} starredNote={starredNote}/>
+
+            <StarNotes isAll={isAll} isDelete={isDelete} isStar={isStar}
+            selectedNote={selectedNote}   deleteData={deleteData} filterStarredNote={filterStarredNote} starData={starData}/>
+
+            <DeleteNotes isAll={isAll} isDelete={isDelete} isStar={isStar}
+            deleteData={deleteData} starredNote={starredNote} permanentdeletedNote={permanentdeletedNote} selectedNote={selectedNote}/>
           </div>
           <div className='col-5'>
-         {(isAll && !isStar && !isDelete) &&  selectedData.map((item,index)=>{
-                return (
-                  <div key={item.id} className='selectednotes-container'>
-                     <div className='notes-title'>
-                      <h5>{item.title}</h5>
-                      <div>
-                      <GrEdit size="1.4em" onClick={()=>editNote(item)}/>
-                      <MdDeleteForever className='delete-icon' size="1.4em" onClick={()=>deletedNote(item)}/> 
-                      </div>
-                     </div>
-                     <p>{item.description}</p>
-                  </div>
-                )
-              })}
+            <SelectedNote isAll={isAll} isDelete={isDelete} isStar={isStar}
+            deletedNote={deletedNote} editNote={editNote} selectedData={selectedData}/>
           </div>
           </div>
-      </div>
-          ):(<div className="edit-container">
-             <label>
-              <small>Title :</small>
-              <input type="text" value={title} onChange={(e)=>setTitle(e.target.value)}/>
-             </label>
-             <label>
-            
-             <small> Descripton :</small>
-              <input type="text" value={description} onChange={(e)=>setDescription(e.target.value)}/>
-             </label>
-             <button onClick={saveNote}>Save</button>
-            </div>)}
-          
-
+         </div>
+          ):(<EditNote title={title} description={description} saveNote={saveNote} setTitle={setTitle} setDescription={setDescription}/>)}
     </>
   )
 }
-
 export default App
